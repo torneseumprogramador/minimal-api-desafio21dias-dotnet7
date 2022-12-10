@@ -22,4 +22,32 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+MapRoutes(app);
+
 app.Run();
+
+
+#region Rotas utilizando Minimal API
+
+void MapRoutes(WebApplication app)
+{
+    app.MapGet("/", () => new {Mensagem = "Bem vindo a API"});
+    app.MapGet("/recebe-parametro", (HttpRequest request, HttpResponse response, string? nome) => 
+    {
+        response.StatusCode = 201;
+
+        nome = $""" 
+        Alterando parametro recebido {nome}
+        """;
+
+        var objetoDeRetono = new {
+            ParametroPassado = nome,
+            Mensagem = "Muito bem alunos passamos um parametro por querystring"
+        };
+
+        return objetoDeRetono;
+    });
+}
+
+
+#endregion
