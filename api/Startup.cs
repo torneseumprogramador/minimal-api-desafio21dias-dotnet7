@@ -71,9 +71,9 @@ public class Startup
                 });
             }
 
-            // nome = $""" 
-            // Alterando parametro recebido {nome}
-            // """;
+            nome = $""" 
+            Alterando parametro recebido {nome}
+            """;
 
             var objetoDeRetono = new {
                 ParametroPassado = nome,
