@@ -1,146 +1,17 @@
-using Microsoft.AspNetCore.Mvc;
-using MinimalApiDesafio.ModelViews;
-using MinimalApiDesafio.DTOs;
-using MinimalApiDesafio.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace MinimalApiDesafio;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-MapRoutes(app);
-MapRoutesClientes(app);
-
-app.Run();
-
-
-#region Rotas utilizando Minimal API
-
-void MapRoutes(WebApplication app)
-{
-    app.MapGet("/", () => new {Mensagem = "Bem vindo a API"})
-        .Produces<dynamic>(StatusCodes.Status200OK)
-        .WithName("Home")
-        .WithTags("Testes");
-
-    app.MapGet("/recebe-parametro", (string? nome) => 
+    public static void Main(string[] args)
     {
-        if(string.IsNullOrEmpty(nome))
-        {
-            return Results.BadRequest(new {
-                Mesagem = "Olha você não mandou uma informação importante, o nome é obrigatório"
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
             });
-        }
-
-        nome = $""" 
-        Alterando parametro recebido {nome}
-        """;
-
-        var objetoDeRetono = new {
-            ParametroPassado = nome,
-            Mensagem = "Muito bem alunos passamos um parametro por querystring"
-        };
-
-        return Results.Created($"/recebe-parametro/{objetoDeRetono.ParametroPassado}", objetoDeRetono);
-    })
-    .Produces<dynamic>(StatusCodes.Status201Created)
-    .Produces(StatusCodes.Status400BadRequest)
-    .WithName("TesteRebeParametro")
-    .WithTags("Testes");
 }
-
-
-void MapRoutesClientes(WebApplication app)
-{
-    app.MapGet("/clientes", () => 
-    {
-        var clientes = new List<Cliente>();
-        // var clientes = ClienteService.Todos();
-
-        return Results.Ok(clientes);
-    })
-    .Produces<List<Cliente>>(StatusCodes.Status200OK)
-    .WithName("GetClientes")
-    .WithTags("Clientes");
-
-    app.MapPost("/clientes", ([FromBody] ClienteDTO clienteDTO) => 
-    {
-        var cliente = new Cliente
-        {
-            Nome = clienteDTO.Nome,
-            Telefone = clienteDTO.Telefone,
-            Email = clienteDTO.Email,
-        };
-        // ClienteService.Salvar(cliente);
-
-        return Results.Created($"/cliente/{cliente.Id}", cliente);
-    })
-    .Produces<Cliente>(StatusCodes.Status201Created)
-    .Produces<Error>(StatusCodes.Status400BadRequest)
-    .WithName("PostClientes")
-    .WithTags("Clientes");
-
-    app.MapPut("/clientes/{id}", ([FromRoute] int id, [FromBody] ClienteDTO clienteDTO) => 
-    {
-        if(string.IsNullOrEmpty(clienteDTO.Nome))
-        {
-            return Results.BadRequest(new Error 
-            { 
-                Codigo = 123432, 
-                Mensagem = "O Nome é obrigatório" 
-            });
-        }
-
-        /*
-
-        var cliente = ClienteService.BuscaPorId(id);
-        if(cliente == null)
-            return Results.NotFound(new Error { Codigo = 123432, Mensagem = "Você passou um cliente inexistente" });
-
-        cliente.Nome = clienteDTO.Nome;
-        cliente.Telefone = clienteDTO.Telefone;
-        cliente.Email = clienteDTO.Email;
-
-        ClienteService.Update(cliente);
-        */
-
-        var cliente = new Cliente();
-
-        return Results.Ok(cliente);
-    })
-    .Produces<Cliente>(StatusCodes.Status200OK)
-    .Produces<Error>(StatusCodes.Status404NotFound)
-    .Produces<Error>(StatusCodes.Status400BadRequest)
-    .WithName("PutClientes")
-    .WithTags("Clientes");
-
-    // TODO Path
-    // TODO Delete
-    // TODO Get Cliente por ID
-
-    // TODO fazer testes request
-    // TODO fazer testes com postman
-    // TODO fazer testes via curl
-
-}
-
-#endregion

@@ -2,6 +2,6 @@ namespace MinimalApiDesafio.ModelViews;
 
 public struct Error
 {
-    public required int Codigo { get;set; }
-    public required string Mensagem { get;set; }
+    public  int Codigo { get;set; }
+    public  string Mensagem { get;set; }
 }
