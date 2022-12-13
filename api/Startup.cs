@@ -94,6 +94,13 @@ public class Startup
         app.MapGet("/clientes", () => 
         {
             var clientes = new List<Cliente>();
+            clientes.Add(new Cliente() 
+            {
+                Id = 1,
+                Nome = "Janaina",
+                Email = "jan@gmail.com",
+                Telefone = "(11)11111-11111"
+            });
             // var clientes = ClienteService.Todos();
 
             return Results.Ok(clientes);
@@ -153,13 +160,75 @@ public class Startup
         .WithName("PutClientes")
         .WithTags("Clientes");
 
-        // TODO Path
-        // TODO Delete
-        // TODO Get Cliente por ID
+        app.MapPatch("/clientes/{id}", ([FromRoute] int id, [FromBody] ClienteNomeDTO clienteNomeDTO) => 
+        {
+            Console.WriteLine($"===========[{clienteNomeDTO.Nome}]==========");
+            if(string.IsNullOrEmpty(clienteNomeDTO.Nome))
+            {
+                return Results.BadRequest(new Error 
+                { 
+                    Codigo = 123, 
+                    Mensagem = "O Nome é obrigatório" 
+                });
+            }
 
-        // TODO fazer testes request
-        // TODO fazer testes com postman
-        // TODO fazer testes via curl
+            /*
+            ClienteService.Update(cliente);
+            */
+
+            var cliente = new Cliente();
+
+            return Results.Ok(cliente);
+        })
+        .Produces<Cliente>(StatusCodes.Status200OK)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .Produces<Error>(StatusCodes.Status400BadRequest)
+        .WithName("PatchClientes")
+        .WithTags("Clientes");
+
+        app.MapDelete("/clientes/{id}", ([FromRoute] int id) => 
+        {
+            if(id == 4)
+            {
+                return Results.NotFound(new Error 
+                { 
+                    Codigo = 12, 
+                    Mensagem = "Cliente não encontrado" 
+                });
+            }
+
+            // FAZER CÓDIGO PARA EXCLUIR DO BANCO
+
+            return Results.NoContent();
+        })
+        .Produces<Cliente>(StatusCodes.Status204NoContent)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .WithName("DeleteClientes")
+        .WithTags("Clientes");
+
+
+        app.MapGet("/clientes/{id}", ([FromRoute] int id) => 
+        {
+            if(id == 4)
+            {
+                return Results.NotFound(new Error 
+                { 
+                    Codigo = 12, 
+                    Mensagem = "Cliente não encontrado" 
+                });
+            }
+
+            return Results.Ok(new Cliente(){
+                Id = 1,
+                Nome = "Danilo",
+                Telefone = "111111111",
+                Email = "Danilo@teste.com",
+            });
+        })
+        .Produces<Cliente>(StatusCodes.Status204NoContent)
+        .Produces<Error>(StatusCodes.Status404NotFound)
+        .WithName("GetClientesPorId")
+        .WithTags("Clientes");
 
     }
 
