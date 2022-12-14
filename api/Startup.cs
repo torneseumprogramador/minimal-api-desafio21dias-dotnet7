@@ -3,8 +3,9 @@ using MinimalApiDesafio.ModelViews;
 using MinimalApiDesafio.DTOs;
 using MinimalApiDesafio.Models;
 using Microsoft.OpenApi.Models;
-using minimal_api_desafio.Database;
+using minimal_api_desafio.Infraestrutura.Database;
 using Microsoft.EntityFrameworkCore;
+using MinimalApiDesafio.Infraestrutura.Interfaces;
 
 namespace MinimalApiDesafio;
 
@@ -33,7 +34,7 @@ public class Startup
             options.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
         });
 
-        //services.AddScoped<IStudentsService, StudentsService>();
+        services.AddScoped<IBancoDeDadosServico<Cliente>, ClientesServico>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -99,25 +100,16 @@ public class Startup
 
     public void MapRoutesClientes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/clientes", () => 
+        app.MapGet("/clientes", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico) => 
         {
-            var clientes = new List<Cliente>();
-            clientes.Add(new Cliente() 
-            {
-                Id = 1,
-                Nome = "Janaina",
-                Email = "jan@gmail.com",
-                Telefone = "(11)11111-11111"
-            });
-            // var clientes = ClienteService.Todos();
-
+            var clientes = await clientesServico.Todos();
             return Results.Ok(clientes);
         })
         .Produces<List<Cliente>>(StatusCodes.Status200OK)
         .WithName("GetClientes")
         .WithTags("Clientes");
 
-        app.MapPost("/clientes", ([FromBody] ClienteDTO clienteDTO) => 
+        app.MapPost("/clientes", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromBody] ClienteDTO clienteDTO) => 
         {
             var cliente = new Cliente
             {
@@ -125,7 +117,7 @@ public class Startup
                 Telefone = clienteDTO.Telefone,
                 Email = clienteDTO.Email,
             };
-            // ClienteService.Salvar(cliente);
+            await clientesServico.Salvar(cliente);
 
             return Results.Created($"/cliente/{cliente.Id}", cliente);
         })
@@ -134,31 +126,27 @@ public class Startup
         .WithName("PostClientes")
         .WithTags("Clientes");
 
-        app.MapPut("/clientes/{id}", ([FromRoute] int id, [FromBody] ClienteDTO clienteDTO) => 
+        app.MapPut("/clientes/{id}", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromRoute] int id, [FromBody] ClienteDTO clienteDTO) => 
         {
-            if(string.IsNullOrEmpty(clienteDTO.Nome))
+            var clienteDb = await clientesServico.BuscaPorId(id);
+            if(clienteDb is null)
             {
-                return Results.BadRequest(new Error 
+                return Results.NotFound(new Error 
                 { 
-                    Codigo = 123432, 
-                    Mensagem = "O Nome é obrigatório" 
+                    Codigo = 423, 
+                    Mensagem = $"Cliente não encontrado com o id {id}" 
                 });
             }
 
-            /*
+            var cliente = new Cliente
+            {
+                Id = id,
+                Nome = clienteDTO.Nome,
+                Telefone = clienteDTO.Telefone,
+                Email = clienteDTO.Email,
+            };
 
-            var cliente = ClienteService.BuscaPorId(id);
-            if(cliente == null)
-                return Results.NotFound(new Error { Codigo = 123432, Mensagem = "Você passou um cliente inexistente" });
-
-            cliente.Nome = clienteDTO.Nome;
-            cliente.Telefone = clienteDTO.Telefone;
-            cliente.Email = clienteDTO.Email;
-
-            ClienteService.Update(cliente);
-            */
-
-            var cliente = new Cliente();
+            await clientesServico.Salvar(cliente);
 
             return Results.Ok(cliente);
         })
@@ -168,25 +156,22 @@ public class Startup
         .WithName("PutClientes")
         .WithTags("Clientes");
 
-        app.MapPatch("/clientes/{id}", ([FromRoute] int id, [FromBody] ClienteNomeDTO clienteNomeDTO) => 
+        app.MapPatch("/clientes/{id}", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromRoute] int id, [FromBody] ClienteNomeDTO clienteNomeDTO) => 
         {
-            Console.WriteLine($"===========[{clienteNomeDTO.Nome}]==========");
-            if(string.IsNullOrEmpty(clienteNomeDTO.Nome))
+            var clienteDb = await clientesServico.BuscaPorId(id);
+            if(clienteDb is null)
             {
-                return Results.BadRequest(new Error 
+                return Results.NotFound(new Error 
                 { 
-                    Codigo = 123, 
-                    Mensagem = "O Nome é obrigatório" 
+                    Codigo = 2345, 
+                    Mensagem = $"Cliente não encontrado com o id {id}" 
                 });
             }
 
-            /*
-            ClienteService.Update(cliente);
-            */
+            clienteDb.Nome = clienteNomeDTO.Nome;
+            await clientesServico.Salvar(clienteDb);
 
-            var cliente = new Cliente();
-
-            return Results.Ok(cliente);
+            return Results.Ok(clienteDb);
         })
         .Produces<Cliente>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)
@@ -194,18 +179,19 @@ public class Startup
         .WithName("PatchClientes")
         .WithTags("Clientes");
 
-        app.MapDelete("/clientes/{id}", ([FromRoute] int id) => 
+        app.MapDelete("/clientes/{id}", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromRoute] int id) => 
         {
-            if(id == 4)
+            var clienteDb = await clientesServico.BuscaPorId(id);
+            if(clienteDb is null)
             {
                 return Results.NotFound(new Error 
                 { 
-                    Codigo = 12, 
-                    Mensagem = "Cliente não encontrado" 
+                    Codigo = 22345, 
+                    Mensagem = $"Cliente não encontrado com o id {id}" 
                 });
             }
 
-            // FAZER CÓDIGO PARA EXCLUIR DO BANCO
+            await clientesServico.Excluir(clienteDb);
 
             return Results.NoContent();
         })
@@ -215,29 +201,24 @@ public class Startup
         .WithTags("Clientes");
 
 
-        app.MapGet("/clientes/{id}", ([FromRoute] int id) => 
+        app.MapGet("/clientes/{id}", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromRoute] int id) => 
         {
-            if(id == 4)
+            var clienteDb = await clientesServico.BuscaPorId(id);
+            if(clienteDb is null)
             {
                 return Results.NotFound(new Error 
                 { 
-                    Codigo = 12, 
-                    Mensagem = "Cliente não encontrado" 
+                    Codigo = 21345, 
+                    Mensagem = $"Cliente não encontrado com o id {id}" 
                 });
             }
 
-            return Results.Ok(new Cliente(){
-                Id = 1,
-                Nome = "Danilo",
-                Telefone = "111111111",
-                Email = "Danilo@teste.com",
-            });
+            return Results.Ok(clienteDb);
         })
         .Produces<Cliente>(StatusCodes.Status204NoContent)
         .Produces<Error>(StatusCodes.Status404NotFound)
         .WithName("GetClientesPorId")
         .WithTags("Clientes");
-
     }
 
     #endregion

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MinimalApiDesafio.Models;
 
-namespace minimal_api_desafio.Database;
+namespace minimal_api_desafio.Infraestrutura.Database;
 
 public class DbContexto : DbContext
 {
