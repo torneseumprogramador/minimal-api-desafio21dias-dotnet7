@@ -12,7 +12,8 @@ public class DbContexto : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var conexao = Startup.StrConexao();
-        optionsBuilder.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
+        if(conexao is not null)
+            optionsBuilder.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
     }
 
     public DbSet<Cliente> Clientes { get; set; } = default!;

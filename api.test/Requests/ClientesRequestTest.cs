@@ -2,10 +2,9 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Api.Test.Helpers;
-using Microsoft.EntityFrameworkCore;
-using minimal_api_desafio.Infraestrutura.Database;
 using MinimalApiDesafio.DTOs;
 using MinimalApiDesafio.Models;
+using Moq;
 
 namespace api.test.Requests;
 
@@ -13,23 +12,20 @@ namespace api.test.Requests;
 public class ClientesRequestTest
 {
     [ClassInitialize]
-    public static async Task ClassInit(TestContext testContext)
+    public static void ClassInit(TestContext testContext)
     {
         Setup.ClassInit(testContext);
-        await Setup.ExecutaComandoSql("truncate table clientes");
     }
 
     [ClassCleanup]
-    public static async Task ClassCleanup()
+    public static void ClassCleanup()
     {
         Setup.ClassCleanup();
-        await Setup.ExecutaComandoSql("truncate table clientes");
     }
 
     [TestMethod]
     public async Task GetClientes()
     {
-        await Setup.FakeCliente();
         var response = await Setup.client.GetAsync("/clientes");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -53,7 +49,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PostClientes()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
         var cliente = new ClienteDTO()
         {
             Nome = "Janaina",
@@ -80,10 +75,10 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PutClientes()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
+        var mockSetup = new Mock<Setup>();
+        mockSetup.Setup(s => s.ExecutaEntityCount(1, "Danilo")).Returns(1);
+        var qtdInicial = mockSetup.Object.ExecutaEntityCount(1, "Danilo");
 
-        var qtdInicial = await Setup.ExecutaEntityCount(1, "Danilo");
         Assert.AreEqual(1, qtdInicial);
 
         var cliente = new ClienteDTO()
@@ -109,15 +104,19 @@ public class ClientesRequestTest
         Assert.AreEqual(1, clienteResponse.Id);
         Assert.AreEqual("Janaina", clienteResponse.Nome);
 
-        var qtdFinal = await Setup.ExecutaEntityCount(1, "Janaina");
+        var mockSetupAsync = new Mock<Setup>();
+        mockSetupAsync.Setup(s => s.ExecutaEntityCountAsync(1, "Janaina")).Returns(Task.FromResult(1));
+        var qtdFinal = await mockSetupAsync.Object.ExecutaEntityCountAsync(1, "Janaina");
+
+        // mockSetup.Setup(s => s.ExecutaEntityCount(1, "Janaina")).Returns(1);
+        // var qtdFinal = mockSetup.Object.ExecutaEntityCount(1, "Janaina");
+        
         Assert.AreEqual(1, qtdFinal);
     }
 
     [TestMethod]
     public async Task PutClientesSemNome()
     {
-        await Setup.FakeCliente();
-
         var cliente = new ClienteDTO()
         {
             Email = "jan@gmail.com",
@@ -137,7 +136,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientes()
     {
-        await Setup.FakeCliente();
         var response = await Setup.client.DeleteAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -145,8 +143,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientesIdNaoExistente()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
         var response = await Setup.client.DeleteAsync($"/clientes/{5}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -161,8 +157,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task GetPorId()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
         var response = await Setup.client.GetAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
