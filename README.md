@@ -25,3 +25,8 @@ DATABASE_URL_MINIMAL_API="Server=localhost;Database=desafio21dias_dotnet7;Uid=ro
 ##### ou #####
 ./run.sh
 ```
+
+# Rodando para ambiente de produção
+```shell
+./run-prod.sh
+```
