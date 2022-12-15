@@ -29,6 +29,9 @@ public class Startup
         services.AddEndpointsApiExplorer();
 
         string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
+        if(conexao is null)
+            conexao = Configuration.GetConnectionString("Conexao");
+
         services.AddDbContext<DbContexto>(options =>
         {
             options.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
