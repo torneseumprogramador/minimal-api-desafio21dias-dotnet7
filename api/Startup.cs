@@ -13,12 +13,21 @@ public class Startup
 {
     public Startup(IConfiguration configuration)
     {
-        Startup.Configuration = configuration;
+        Configuration = configuration;
     }
 
-    public static IConfiguration? Configuration { get;set; }
-    public static string? StrConexao()
+    public IConfiguration? Configuration { get;set; }
+    public static string? StrConexao(IConfiguration? Configuration = null)
     {
+        // === Dá prioridade ao app settings ===
+        // if(Configuration is not null)
+        // {
+        //     return Configuration?.GetConnectionString("Conexao");
+        // }
+
+        // return Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
+
+        // === Dá prioridade a variavel de ambiente ===
         string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
         if(conexao is null)
         {
@@ -38,7 +47,7 @@ public class Startup
 
         services.AddEndpointsApiExplorer();
 
-        var conexao = StrConexao();
+        var conexao = StrConexao(Configuration);
         services.AddDbContext<DbContexto>(options =>
         {
             options.UseMySql(conexao, ServerVersion.AutoDetect(conexao));

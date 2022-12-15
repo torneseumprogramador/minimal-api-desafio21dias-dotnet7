@@ -16,17 +16,17 @@ public class Setup
 
     public static async Task ExecutaComandoSql(string sql)
     {
-        await new DbContextoTeste().Database.ExecuteSqlRawAsync(sql);
+        await new DbContexto().Database.ExecuteSqlRawAsync(sql);
     }
 
     public static async Task<int> ExecutaEntityCount(int id, string nome)
     {
-        return await new DbContextoTeste().Clientes.Where(c => c.Id == id && c.Nome == nome).CountAsync();
+        return await new DbContexto().Clientes.Where(c => c.Id == id && c.Nome == nome).CountAsync();
     }
     
     public static async Task FakeCliente()
     {
-        await new DbContextoTeste().Database.ExecuteSqlRawAsync("""
+        await new DbContexto().Database.ExecuteSqlRawAsync("""
         insert clientes(Nome, Telefone, Email, DataCriacao)
         values('Danilo', '(11)11111-1111', 'email@teste.com', '2022-12-15 06:09:00')
         """);
