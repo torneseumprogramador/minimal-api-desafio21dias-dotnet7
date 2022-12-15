@@ -13,10 +13,20 @@ public class Startup
 {
     public Startup(IConfiguration configuration)
     {
-        Configuration = configuration;
+        Startup.Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
+    public static IConfiguration? Configuration { get;set; }
+    public static string? StrConexao()
+    {
+        string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
+        if(conexao is null)
+        {
+            conexao = Configuration?.GetConnectionString("Conexao");
+        }
+
+        return conexao;
+    }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -28,10 +38,7 @@ public class Startup
 
         services.AddEndpointsApiExplorer();
 
-        string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
-        if(conexao is null)
-            conexao = Configuration.GetConnectionString("Conexao");
-
+        var conexao = StrConexao();
         services.AddDbContext<DbContexto>(options =>
         {
             options.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
@@ -131,6 +138,15 @@ public class Startup
 
         app.MapPut("/clientes/{id}", async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico, [FromRoute] int id, [FromBody] ClienteDTO clienteDTO) => 
         {
+            if (string.IsNullOrEmpty(clienteDTO.Nome))
+            {
+                return Results.BadRequest(new Error
+                {
+                    Codigo = 123432,
+                    Mensagem = $"O Nome é obrigatório"
+                });
+            }
+
             var clienteDb = await clientesServico.BuscaPorId(id);
             if(clienteDb is null)
             {
@@ -141,17 +157,13 @@ public class Startup
                 });
             }
 
-            var cliente = new Cliente
-            {
-                Id = id,
-                Nome = clienteDTO.Nome,
-                Telefone = clienteDTO.Telefone,
-                Email = clienteDTO.Email,
-            };
+            clienteDb.Nome = clienteDTO.Nome;
+            clienteDb.Telefone = clienteDTO.Telefone;
+            clienteDb.Email = clienteDTO.Email;
 
-            await clientesServico.Salvar(cliente);
+            await clientesServico.Salvar(clienteDb);
 
-            return Results.Ok(cliente);
+            return Results.Ok(clienteDb);
         })
         .Produces<Cliente>(StatusCodes.Status200OK)
         .Produces<Error>(StatusCodes.Status404NotFound)

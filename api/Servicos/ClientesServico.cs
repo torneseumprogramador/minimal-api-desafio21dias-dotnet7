@@ -38,9 +38,10 @@ public class ClientesServico : IBancoDeDadosServico<Cliente>
         await this.dbContexto.SaveChangesAsync();
     }
 
-    public async Task<Cliente> BuscaPorId(int id)
+    public async Task<Cliente?> BuscaPorId(int id)
     {
-        return await this.dbContexto.Clientes.Where(c => c.Id == id).FirstAsync();
+        Cliente? cliente = await this.dbContexto.Clientes.Where(c => c.Id == id).FirstOrDefaultAsync();
+        return cliente;
     }
 
     public async Task<List<Cliente>> Todos()
