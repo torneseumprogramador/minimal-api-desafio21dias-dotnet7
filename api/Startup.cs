@@ -28,7 +28,7 @@ public class Startup
         // return Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API");
 
         // === Dá prioridade a variavel de ambiente ===
-        string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API_AAA");
+        string? conexao = Environment.GetEnvironmentVariable("DATABASE_URL_MINIMAL_API_PROD_DEV");
         if(conexao is null)
         {
             conexao = Configuration?.GetConnectionString("Conexao");
