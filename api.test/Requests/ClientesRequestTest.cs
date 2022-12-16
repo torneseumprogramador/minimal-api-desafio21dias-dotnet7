@@ -13,23 +13,20 @@ namespace api.test.Requests;
 public class ClientesRequestTest
 {
     [ClassInitialize]
-    public static async Task ClassInit(TestContext testContext)
+    public static void ClassInit(TestContext testContext)
     {
         Setup.ClassInit(testContext);
-        await Setup.ExecutaComandoSql("truncate table clientes");
     }
 
     [ClassCleanup]
-    public static async Task ClassCleanup()
+    public static void ClassCleanup()
     {
         Setup.ClassCleanup();
-        await Setup.ExecutaComandoSql("truncate table clientes");
     }
 
     [TestMethod]
     public async Task GetClientes()
     {
-        await Setup.FakeCliente();
         var response = await Setup.client.GetAsync("/clientes");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -53,7 +50,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PostClientes()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
         var cliente = new ClienteDTO()
         {
             Nome = "Janaina",
@@ -80,12 +76,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PutClientes()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
-
-        var qtdInicial = await Setup.ExecutaEntityCount(1, "Danilo");
-        Assert.AreEqual(1, qtdInicial);
-
         var cliente = new ClienteDTO()
         {
             Nome = "Janaina",
@@ -108,16 +98,11 @@ public class ClientesRequestTest
         Assert.IsNotNull(clienteResponse);
         Assert.AreEqual(1, clienteResponse.Id);
         Assert.AreEqual("Janaina", clienteResponse.Nome);
-
-        var qtdFinal = await Setup.ExecutaEntityCount(1, "Janaina");
-        Assert.AreEqual(1, qtdFinal);
     }
 
     [TestMethod]
     public async Task PutClientesSemNome()
     {
-        await Setup.FakeCliente();
-
         var cliente = new ClienteDTO()
         {
             Email = "jan@gmail.com",
@@ -137,7 +122,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientes()
     {
-        await Setup.FakeCliente();
         var response = await Setup.client.DeleteAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -145,8 +129,6 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientesIdNaoExistente()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
         var response = await Setup.client.DeleteAsync($"/clientes/{5}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -161,32 +143,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task GetPorId()
     {
-        await Setup.ExecutaComandoSql("truncate table clientes");
-        await Setup.FakeCliente();
         var response = await Setup.client.GetAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
-
-    /*
-    [TestMethod]
-    public async Task PatchClientes()
-    {
-        var cliente = new ClienteNomeDTO()
-        {
-            Nome = "Jaziel",
-        };
-
-        Setup.client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json-patch+json"));
-        var content = new StringContent(JsonSerializer.Serialize(cliente), Encoding.UTF8);
-        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json-patch+json");
-
-        var response = await Setup.client.PatchAsync($"/clientes/{1}", content);
-
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
-
-        var result = await response.Content.ReadAsStringAsync();
-        Assert.AreEqual("""{"codigo":123,"mensagem":"O Nome é obrigatório"}""", result);
-    }
-    */
 }

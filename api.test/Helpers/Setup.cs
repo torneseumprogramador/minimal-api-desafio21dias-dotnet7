@@ -4,6 +4,10 @@ using MinimalApiDesafio;
 using minimal_api_desafio.Infraestrutura.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using MinimalApiDesafio.Infraestrutura.Interfaces;
+using MinimalApiDesafio.Models;
+using Api.Test.Mock;
 
 namespace Api.Test.Helpers;
 
@@ -40,7 +44,21 @@ public class Setup
         Setup.http = Setup.http.WithWebHostBuilder(builder =>
         {
             builder.UseSetting("https_port", Setup.PORT).UseEnvironment("Testing");
-            //builder.ConfigureServices.service.UseMySql // Caso queira deixar o teste com conexão diferente
+            
+            builder.ConfigureServices(services =>
+            {
+                services.AddScoped<IBancoDeDadosServico<Cliente>, ClientesServicoMock>();
+                
+                /*
+                //== Caso queira deixar o teste com conexão diferente ==
+                var conexao = "Server=localhost;Database=desafio21dias_dotnet7_test;Uid=root;Pwd=root";
+                services.AddDbContext<DbContexto>(options =>
+                {
+                    options.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
+                });
+                */
+            });
+
         });
 
         Setup.client = Setup.http.CreateClient();

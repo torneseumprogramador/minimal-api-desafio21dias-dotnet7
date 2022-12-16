@@ -166,11 +166,7 @@ public class Startup
                 });
             }
 
-            clienteDb.Nome = clienteDTO.Nome;
-            clienteDb.Telefone = clienteDTO.Telefone;
-            clienteDb.Email = clienteDTO.Email;
-
-            await clientesServico.Salvar(clienteDb);
+            await clientesServico.Update(clienteDb, clienteDTO);
 
             return Results.Ok(clienteDb);
         })

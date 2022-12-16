@@ -23,6 +23,24 @@ public class ClientesServico : IBancoDeDadosServico<Cliente>
         await this.dbContexto.SaveChangesAsync();
     }
 
+    public async Task Update(Cliente clientePara, object clienteDe)
+    {
+        if(clientePara.Id == 0)
+            throw new Exception("Id de cliente é obrigatório");
+        
+        foreach(var propDe in clienteDe.GetType().GetProperties())
+        {
+            var propPara = clientePara.GetType().GetProperty(propDe.Name);
+            if(propPara is not null)
+            {
+                propPara.SetValue(clientePara, propDe.GetValue(clienteDe));
+            }
+        }
+
+        this.dbContexto.Clientes.Update(clientePara);
+        await this.dbContexto.SaveChangesAsync();
+    }
+
     public async Task ExcluirPorId(int id)
     {
         var cliente = await this.dbContexto.Clientes.Where(c => c.Id == id).FirstAsync();
