@@ -18,17 +18,17 @@ public class Setup
     public static WebApplicationFactory<Startup> http = default!;
     public static HttpClient client = default!;
 
-    public static async Task ExecutaComandoSql(string sql)
+    public static async Task ExecutaComandoSqlAsync(string sql)
     {
         await new DbContexto().Database.ExecuteSqlRawAsync(sql);
     }
 
-    public static async Task<int> ExecutaEntityCount(int id, string nome)
+    public static async Task<int> ExecutaEntityCountAsync(int id, string nome)
     {
         return await new DbContexto().Clientes.Where(c => c.Id == id && c.Nome == nome).CountAsync();
     }
     
-    public static async Task FakeCliente()
+    public static async Task FakeClienteAsync()
     {
         await new DbContexto().Database.ExecuteSqlRawAsync("""
         insert clientes(Nome, Telefone, Email, DataCriacao)

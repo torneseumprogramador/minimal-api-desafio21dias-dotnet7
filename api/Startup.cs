@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using minimal_api_desafio.Infraestrutura.Database;
 using Microsoft.EntityFrameworkCore;
 using MinimalApiDesafio.Infraestrutura.Interfaces;
+using MinimalApiDesafio.Servicos;
 
 namespace MinimalApiDesafio;
 

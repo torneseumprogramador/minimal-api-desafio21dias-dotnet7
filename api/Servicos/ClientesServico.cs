@@ -1,26 +1,31 @@
 using minimal_api_desafio.Infraestrutura.Database;
 using MinimalApiDesafio.Infraestrutura.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using MinimalApiDesafio.Models;
 
-namespace MinimalApiDesafio.Models;
+namespace MinimalApiDesafio.Servicos;
 
 public class ClientesServico : IBancoDeDadosServico<Cliente>
 {
+    public ClientesServico() {}
+
     public ClientesServico(DbContexto dbContexto)
     {
         this.dbContexto = dbContexto;
     }
 
-    private DbContexto dbContexto;
+    private DbContexto dbContexto = default!;
 
-    public async Task Salvar(Cliente cliente)
+    public virtual async Task Salvar(Cliente cliente)
     {
         if(cliente.Id == 0)
             this.dbContexto.Clientes.Add(cliente);
         else
             this.dbContexto.Clientes.Update(cliente);
         
-        await this.dbContexto.SaveChangesAsync();
+        var ret = this.dbContexto.SaveChanges();
+        if(ret != 1) throw new Exception("Não foi possivel salvar o dado no banco");
+        await Task.FromResult(ret);
     }
 
     public async Task Update(Cliente clientePara, object clienteDe)
@@ -58,12 +63,13 @@ public class ClientesServico : IBancoDeDadosServico<Cliente>
 
     public async Task<Cliente?> BuscaPorId(int id)
     {
-        Cliente? cliente = await this.dbContexto.Clientes.Where(c => c.Id == id).FirstOrDefaultAsync();
+        Cliente? cliente = await Task.FromResult(this.dbContexto.Clientes.Where(c => c.Id == id).FirstOrDefault());
         return cliente;
     }
 
     public async Task<List<Cliente>> Todos()
     {
-        return await this.dbContexto.Clientes.ToListAsync();
+        // return await this.dbContexto.Clientes.ToListAsync();
+        return await Task.FromResult(this.dbContexto.Clientes.ToList());
     }
 }

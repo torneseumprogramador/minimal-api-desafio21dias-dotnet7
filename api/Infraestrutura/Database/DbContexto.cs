@@ -15,5 +15,5 @@ public class DbContexto : DbContext
         optionsBuilder.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
     }
 
-    public DbSet<Cliente> Clientes { get; set; } = default!;
+    public virtual DbSet<Cliente> Clientes { get; set; } = default!;
 } 
