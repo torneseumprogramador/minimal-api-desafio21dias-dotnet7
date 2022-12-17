@@ -64,7 +64,7 @@ public class AdministradoresServicoMockEntityTest
         var data = lista.AsQueryable();
         var administradoresServico = new AdministradoresServico(contextMock(data));
 
-        var adm = await administradoresServico.Login("danilo@torneseumprogramador.com.br", "123456");
+        var adm = await administradoresServico.LoginAsync("danilo@torneseumprogramador.com.br", "123456");
 
         Assert.IsNotNull(adm);
     }
@@ -82,24 +82,23 @@ public class AdministradoresServicoMockEntityTest
         return mockContext.Object;
     }
 
-    // === TODO melhorar este test
-    // [TestMethod]
-    // public async Task TestaLoginInvalido()
-    // {
-    //     var lista = new List<Administrador>
-    //     {
-    //         new Administrador { Id = 1, Nome = "Danilo", Email = "danilo@torneseumprogramador.com.br", Senha = "123456" },
-    //         new Administrador { Id = 2, Nome = "ZZZ" },
-    //         new Administrador { Id = 3, Nome = "AAA" },
-    //     };
+    [TestMethod]
+    public async Task TestaLoginInvalido()
+    {
+        var lista = new List<Administrador>
+        {
+            new Administrador { Id = 1, Nome = "Danilo", Email = "danilo@torneseumprogramador.com.br", Senha = "123456" },
+            new Administrador { Id = 2, Nome = "ZZZ" },
+            new Administrador { Id = 3, Nome = "AAA" },
+        };
         
-    //     var data = lista.AsQueryable();
-    //     var administradoresServico = new AdministradoresServico(contextMock(data));
+        var data = lista.AsQueryable();
+        var administradoresServico = new AdministradoresServico(contextMock(data));
 
-    //     var adm = await administradoresServico.Login("errado@torneseumprogramador.com.br", "123ss456");
+        var adm = await administradoresServico.LoginAsync("errado@torneseumprogramador.com.br", "123ss456");
 
-    //     Assert.IsNull(adm);
-    // }
+        Assert.IsNull(adm);
+    }
 
     [TestMethod]
     public async Task TestaBuscaPorId()

@@ -5,7 +5,7 @@ using MinimalApiDesafio.Models;
 
 namespace MinimalApiDesafio.Servicos;
 
-public class AdministradoresServico : IBancoDeDadosServico<Administrador>
+public class AdministradoresServico : ILogin<Administrador>
 {
     public AdministradoresServico() {}
 
@@ -15,12 +15,12 @@ public class AdministradoresServico : IBancoDeDadosServico<Administrador>
     }
 
     private DbContexto dbContexto = default!;
-    public virtual async Task<Administrador?> Login(string email, string senha)
+    public virtual async Task<Administrador?> LoginAsync(string email, string senha)
     {
         return await Task.FromResult(
             this.dbContexto.Administradores
                 .Where(a => a.Email == email && a.Senha == senha)
-                .First()
+                .FirstOrDefault()
         );
     }
 
