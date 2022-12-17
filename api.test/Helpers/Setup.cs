@@ -48,6 +48,7 @@ public class Setup
             builder.ConfigureServices(services =>
             {
                 services.AddScoped<IBancoDeDadosServico<Cliente>, ClientesServicoMock>();
+                services.AddScoped<ILogin<Administrador>, AdministradoresServicoMock>();
                 
                 /*
                 //== Caso queira deixar o teste com conexão diferente ==

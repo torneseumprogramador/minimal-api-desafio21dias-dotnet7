@@ -1,11 +1,12 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Api.Test.Helpers;
-using Microsoft.EntityFrameworkCore;
-using minimal_api_desafio.Infraestrutura.Database;
+using Api.Test.Mock;
 using MinimalApiDesafio.DTOs;
 using MinimalApiDesafio.Models;
+using MinimalApiDesafio.Servicos;
 
 namespace api.test.Requests;
 
@@ -27,6 +28,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task GetClientes()
     {
+        await SetHeaderToken();
         var response = await Setup.client.GetAsync("/clientes");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -50,6 +52,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PostClientes()
     {
+        await SetHeaderToken();
         var cliente = new ClienteDTO()
         {
             Nome = "Janaina",
@@ -76,6 +79,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PutClientes()
     {
+        await SetHeaderToken();
         var cliente = new ClienteDTO()
         {
             Nome = "Janaina",
@@ -103,6 +107,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task PutClientesSemNome()
     {
+        await SetHeaderToken();
         var cliente = new ClienteDTO()
         {
             Email = "jan@gmail.com",
@@ -122,6 +127,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientes()
     {
+        await SetHeaderToken();
         var response = await Setup.client.DeleteAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
@@ -129,6 +135,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task DeleteClientesIdNaoExistente()
     {
+        await SetHeaderToken();
         var response = await Setup.client.DeleteAsync($"/clientes/{5}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -136,6 +143,7 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task GetPorIdClienteNaoEncontrado()
     {
+        await SetHeaderToken();
         var response = await Setup.client.GetAsync($"/clientes/{4}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -143,7 +151,31 @@ public class ClientesRequestTest
     [TestMethod]
     public async Task GetPorId()
     {
+        await SetHeaderToken();
         var response = await Setup.client.GetAsync($"/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    private async Task SetHeaderToken()
+    {
+        if(Setup.client.DefaultRequestHeaders.Authorization is not null) return;
+
+        var loginDTO = new LoginDTO()
+        {
+            Email = "danilo@torneseumprogramador.com.br",
+            Senha = "123456"
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(loginDTO), Encoding.UTF8, "application/json");
+        var response = await Setup.client.PostAsync("/login", content);
+
+        var result = await response.Content.ReadAsStringAsync();
+        var admLogado = JsonSerializer.Deserialize<AdministradorLogadoDTO>(result, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        var token  = admLogado?.Token;
+        Setup.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 }
