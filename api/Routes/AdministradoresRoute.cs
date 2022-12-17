@@ -30,7 +30,6 @@ internal struct AdministradoresRoute
             var adm = new AdministradorLogadoDTO
             {
                 Email = admEncontrado.Email,
-                Senha = admEncontrado.Senha,
                 Permissao = admEncontrado.Permissao,
                 Token = TokenServico.Gerar(admEncontrado)
             };
