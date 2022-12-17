@@ -84,7 +84,7 @@ internal struct AdministradoresRoute
         .WithTags("Administradores");
 
 
-        app.MapPost("/administradores", [AllowAnonymous] async ( 
+        app.MapGet("/administradores", [AllowAnonymous] async ( 
                 [FromServices] ILogin<Administrador> administradoresServico
         ) => 
         {
