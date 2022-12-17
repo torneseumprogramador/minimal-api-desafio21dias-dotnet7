@@ -24,7 +24,7 @@ public class AdministradoresRequestTest
     [TestMethod]
     public async Task GetClientes()
     {
-        var response = await Setup.client.GetAsync("/administradores");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/administradores");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
@@ -38,7 +38,7 @@ public class AdministradoresRequestTest
         };
 
         var content = new StringContent(JsonSerializer.Serialize(loginDTO), Encoding.UTF8, "application/json");
-        var response = await Setup.client.PostAsync("/login", content);
+        var response = await Setup.client.PostAsync($"http://localhost:{Setup.PORT}/login", content);
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());

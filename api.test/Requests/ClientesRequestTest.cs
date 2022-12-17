@@ -29,7 +29,7 @@ public class ClientesRequestTest
     public async Task GetClientes()
     {
         await SetHeaderToken();
-        var response = await Setup.client.GetAsync("/clientes");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/clientes");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -61,7 +61,7 @@ public class ClientesRequestTest
         };
 
         var content = new StringContent(JsonSerializer.Serialize(cliente), Encoding.UTF8, "application/json");
-        var response = await Setup.client.PostAsync("/clientes", content);
+        var response = await Setup.client.PostAsync($"http://localhost:{Setup.PORT}/clientes", content);
 
         Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -88,7 +88,7 @@ public class ClientesRequestTest
         };
 
         var content = new StringContent(JsonSerializer.Serialize(cliente), Encoding.UTF8, "application/json");
-        var response = await Setup.client.PutAsync($"/clientes/{1}", content);
+        var response = await Setup.client.PutAsync($"http://localhost:{Setup.PORT}/clientes/{1}", content);
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -115,7 +115,7 @@ public class ClientesRequestTest
         };
 
         var content = new StringContent(JsonSerializer.Serialize(cliente), Encoding.UTF8, "application/json");
-        var response = await Setup.client.PutAsync($"/clientes/{1}", content);
+        var response = await Setup.client.PutAsync($"http://localhost:{Setup.PORT}/clientes/{1}", content);
 
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -128,7 +128,7 @@ public class ClientesRequestTest
     public async Task DeleteClientes()
     {
         await SetHeaderToken();
-        var response = await Setup.client.DeleteAsync($"/clientes/{1}");
+        var response = await Setup.client.DeleteAsync($"http://localhost:{Setup.PORT}/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
@@ -136,7 +136,7 @@ public class ClientesRequestTest
     public async Task DeleteClientesIdNaoExistente()
     {
         await SetHeaderToken();
-        var response = await Setup.client.DeleteAsync($"/clientes/{5}");
+        var response = await Setup.client.DeleteAsync($"http://localhost:{Setup.PORT}/clientes/{5}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -144,7 +144,7 @@ public class ClientesRequestTest
     public async Task GetPorIdClienteNaoEncontrado()
     {
         await SetHeaderToken();
-        var response = await Setup.client.GetAsync($"/clientes/{4}");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/clientes/{4}");
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -152,7 +152,7 @@ public class ClientesRequestTest
     public async Task GetPorId()
     {
         await SetHeaderToken();
-        var response = await Setup.client.GetAsync($"/clientes/{1}");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/clientes/{1}");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
@@ -167,7 +167,7 @@ public class ClientesRequestTest
         };
 
         var content = new StringContent(JsonSerializer.Serialize(loginDTO), Encoding.UTF8, "application/json");
-        var response = await Setup.client.PostAsync("/login", content);
+        var response = await Setup.client.PostAsync($"http://localhost:{Setup.PORT}/login", content);
 
         var result = await response.Content.ReadAsStringAsync();
         var admLogado = JsonSerializer.Deserialize<AdministradorLogadoDTO>(result, new JsonSerializerOptions

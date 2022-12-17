@@ -25,7 +25,7 @@ public class HomeRequestTest
     [TestMethod]
     public async Task TestaSeAHomeDaAPIExiste()
     {
-        var response = await Setup.client.GetAsync("/");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/");
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -37,7 +37,7 @@ public class HomeRequestTest
     [TestMethod]
     public async Task TestandoCaminhoFelizParaRecebeParametro()
     {
-        var response = await Setup.client.GetAsync("/recebe-parametro?nome=Leandro");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}/recebe-parametro?nome=Leandro");
 
         Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
         Assert.AreEqual("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
@@ -49,7 +49,7 @@ public class HomeRequestTest
     [TestMethod]
     public async Task TestandoRecebeParametroSemOParametro()
     {
-        var response = await Setup.client.GetAsync("/recebe-parametro");
+        var response = await Setup.client.GetAsync($"http://localhost:{Setup.PORT}recebe-parametro");
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 
         var result = await response.Content.ReadAsStringAsync();

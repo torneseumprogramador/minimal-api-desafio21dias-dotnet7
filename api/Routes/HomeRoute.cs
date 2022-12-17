@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MinimalApiDesafio.Routes;
 
-internal struct HomeRoute
+public struct HomeRoute
 {
-    internal static void MapRoutes(IEndpointRouteBuilder app)
+    public static void MapRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet("/", [AllowAnonymous] () => new {Mensagem = "Bem vindo a API"})
             .Produces<dynamic>(StatusCodes.Status200OK)

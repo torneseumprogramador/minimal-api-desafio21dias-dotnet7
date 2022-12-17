@@ -7,9 +7,9 @@ using MinimalApiDesafio.ModelViews;
 
 namespace MinimalApiDesafio.Routes;
 
-internal struct ClientesRoute
+public struct ClientesRoute
 {
-    internal static void MapRoutes(IEndpointRouteBuilder app)
+    public static void MapRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet("/clientes", [Authorize] [Authorize(Roles = "editor, administrador")] async ([FromServices] IBancoDeDadosServico<Cliente> clientesServico) => 
         {

@@ -7,9 +7,9 @@ using MinimalApiDesafio.Servicos;
 
 namespace MinimalApiDesafio.Routes;
 
-internal struct AdministradoresRoute
+public struct AdministradoresRoute
 {
-    internal static void MapRoutes(IEndpointRouteBuilder app)
+    public static void MapRoutes(IEndpointRouteBuilder app)
     {
         app.MapPost("/login", [AllowAnonymous] async ( 
             [FromServices] ILogin<Administrador> administradoresServico,
