@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using minimal_api_desafio.Infraestrutura.Database;
 
@@ -10,9 +11,11 @@ using minimal_api_desafio.Infraestrutura.Database;
 namespace minimalapidesafio.Migrations
 {
     [DbContext(typeof(DbContexto))]
-    partial class DbContextoModelSnapshot : ModelSnapshot
+    [Migration("20221217112238_AddAministradores")]
+    partial class AddAministradores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,11 +37,6 @@ namespace minimalapidesafio.Migrations
                         .HasColumnType("varchar(200)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Permissao")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
