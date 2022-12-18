@@ -4,4 +4,4 @@ DATABASE_URL_MINIMAL_API="Server=localhost;Database=desafio21dias_dotnet7_prod;U
 
 dotnet publish -o Release
 export DATABASE_URL_MINIMAL_API="Server=localhost;Database=desafio21dias_dotnet7_prod;Uid=root;Pwd=root"
-dotnet Release/minimal-api-desafio.dll
+nohup dotnet Release/minimal-api-desafio.dll &
